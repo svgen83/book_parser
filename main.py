@@ -5,7 +5,7 @@ import requests
 
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
-
+from urllib.parse import urljoin
 
 
 def make_directory(directory_name):
@@ -20,7 +20,7 @@ def download_files(directory, id_book, book_name):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
-    file_name = os.path.join(directory, f"{book_name}.txt")
+    file_name = os.path.join(directory, f"{id_book}_{book_name}.txt")
     with open(file_name, "wb") as file:
         file.write(response.content)
 
@@ -35,6 +35,9 @@ def parsing_html(id_book):
     title = title_tag.text
     print(title)
     book_title, author = title.split("::")
+    soup_link = soup.find('div', class_='bookimage').find('img')['src']
+    image_link = urljoin(url, soup_link)
+    print(image_link)
     return sanitize_filename(book_title.strip()) #,author.strip()
 
 
@@ -47,7 +50,7 @@ if __name__ == "__main__":
 
     directory = "./books"
     make_directory(directory)
-    id_books = get_book_ids(1, 99999, 10)
+    id_books = get_book_ids(32168, 32168, 1)
     for id_book in id_books:
         try:
             book_name = parsing_html(id_book)
@@ -58,6 +61,4 @@ if __name__ == "__main__":
 
     
 
-
-
-###ссылка на книгу Пески Марса https://tululu.org/txt.php?id=32168
+###ссылка на книгу Пески Марса https://tululu.org/b32168
