@@ -3,6 +3,9 @@ import pathlib
 import random
 import requests
 
+from bs4 import BeautifulSoup
+from pathvalidate import sanitize_filename
+
 
 
 def make_directory(directory_name):
@@ -12,14 +15,27 @@ def get_book_ids(start_number, fin_number,number_range ):
     return [str(random.randint(start_number, fin_number)) for i in range(number_range)]
     
 
-def download_files(directory_name, id_book):
+def download_files(directory, id_book, book_name):
     url = f"https://tululu.org/txt.php?id={id_book}"
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
-    book_name = f"{directory_name}/book_{id_book}.txt"
-    with open(book_name, "wb") as file:
+    file_name = os.path.join(directory, f"{book_name}.txt")
+    with open(file_name, "wb") as file:
         file.write(response.content)
+
+
+def parsing_html(id_book):
+    url = f"https://tululu.org/b{id_book}/"
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
+    soup = BeautifulSoup(response.text, 'lxml')
+    title_tag = soup.find("h1")
+    title = title_tag.text
+    print(title)
+    book_title, author = title.split("::")
+    return sanitize_filename(book_title.strip()) #,author.strip()
 
 
 def check_for_redirect(response):
@@ -29,12 +45,13 @@ def check_for_redirect(response):
 
 if __name__ == "__main__":
 
-    directory_name = "./books"
-    make_directory(directory_name)
-    id_books = get_book_ids(10000, 50000, 10)
+    directory = "./books"
+    make_directory(directory)
+    id_books = get_book_ids(1, 99999, 10)
     for id_book in id_books:
         try:
-            download_files(directory_name, id_book)
+            book_name = parsing_html(id_book)
+            download_files(directory, id_book, book_name)
         except requests.exceptions.HTTPError:
             print('Необходимый файл отсутствует')
         continue
