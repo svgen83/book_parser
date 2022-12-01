@@ -36,6 +36,9 @@ def parsing_html(id_book):
     soup_link = soup.find('div', class_='bookimage').find('img')['src']
     image_link = urljoin(url, soup_link)
     print(image_link)
+    comments = soup.find_all('span', class_='black')
+    for comment in comments:
+        print(comment.text)
     return sanitize_filename(book_title.strip()), image_link #,author.strip()
 
 
@@ -49,7 +52,7 @@ if __name__ == "__main__":
     
     make_directory("./books")
     make_directory("./books/covers")
-    id_books = get_book_ids(1, 100, 10)
+    id_books = get_book_ids(9, 9, 1)
     for id_book in id_books:
         try:
             url = f"https://tululu.org/txt.php?id={id_book}"
