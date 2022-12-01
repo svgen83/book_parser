@@ -39,6 +39,9 @@ def parsing_html(id_book):
     comments = soup.find_all('span', class_='black')
     for comment in comments:
         print(comment.text)
+    genres = soup.find_all('span', class_='d_book')
+    for genre in genres:
+        print(genre.text)
     return sanitize_filename(book_title.strip()), image_link #,author.strip()
 
 
