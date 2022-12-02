@@ -1,26 +1,26 @@
 # Book_parser
 
-Программа предназначена для парсинга страниц и скачивания книг  [на сайте библиотеки](https://tululu.org/).
+The program is designed for parsing pages and downloading books [on the library website] (https://tululu.org/).
 
-## Как установить
+## How to install
 
-Python3 должен быть уже установлен.
-Затем используйте pip (или pip3, если есть конфликт с Python2) для установки зависимостей:
+Python3 should already be installed.
+Then use pip (or pip3 if there is a conflict with Python2) to install the dependencies:
 ```
 pip install -r requirements.txt
 ```
 
 
-## Как запустить
+## How to start
 
-Программа запускается из командной строки. Для запуска программы с помощью команды `cd` сначала нужно перейти в папку, содержащую файл `main.py`.
-После этого в командной строке пишем:
+The program is launched from the command line. To run the program with the `cd` command, you first need to navigate to the folder containing the `main.py` file.
+After that, on the command line, write:
 ```
 python main.py 10, 20, 5
 ```
-При этом, числа `10, 20, 5` могут быть любыми другими целыми числами. Они обозначают, соответственно, первую и последнюю позиции скачиваемых книг, а также общее количество книг.
-Следует отметить, что книги, если они есть, скачаются случайным образом. При этом необходимо помнить, что второе число должно быть больше первого, а последнее не должно превышать их разности :).
+In this case, the numbers `10, 20, 5` can be any other integers. They indicate, respectively, the first and last position of downloaded books, as well as the total number of books.
+It should be noted that books, if any, will be downloaded randomly. It must be remembered that the second number must be greater than the first, and the latter must not exceed their difference :).
 
-## Цели проекта
+## Project Goals
 
-Код написан в образовательных целях на онлайн-курсе для веб-разработчиков [dvmn.org](https://dvmn.org/).
+The code was written for educational purposes in an online course for web developers [dvmn.org](https://dvmn.org/).
