@@ -28,6 +28,7 @@ def download_files(book_url, directory, id_book, book_name, ext):
     response = requests.get(book_url)
     response.raise_for_status()
     check_for_redirect(response)
+    pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
     save_file(response.content,"wb", directory, id_book, book_name, ext)
 
 
@@ -86,8 +87,7 @@ def main():
         try:
             book_dir = os.path.join(base_directory,
                                     book_id)
-            pathlib.Path(book_dir).mkdir(parents=True, exist_ok=True)
-
+            
             book_url = f"https://tululu.org/txt.php?id={book_id}"
             parsed_page = parsing_book_page(book_id)
 
