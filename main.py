@@ -36,12 +36,19 @@ def parsing_html(id_book):
     soup_link = soup.find('div', class_='bookimage').find('img')['src']
     image_link = urljoin(url, soup_link)
     print(image_link)
-    comments = soup.find_all('span', class_='black')
+    comments = soup.find_all('div', class_='texts')
     for comment in comments:
-        print(comment.text)
+        comment_text = comment.find('span', class_='black').text
+        print(comment_text)
+        file_name = os.path.join("./books/comments", f"{id_book}.txt")
+        with open(file_name, "ta") as file:
+            file.write(f"{comment_text}\n")
     genres = soup.find_all('span', class_='d_book')
     for genre in genres:
         print(genre.text)
+        #file_name = os.path.join("./books/genres", f"{id_book}.txt")
+        #with open(file_name, "wt") as file:
+       #     file.write(genre.text)
     return sanitize_filename(book_title.strip()), image_link #,author.strip()
 
 
@@ -55,6 +62,9 @@ if __name__ == "__main__":
     
     make_directory("./books")
     make_directory("./books/covers")
+    make_directory("./books/genres")
+    make_directory("./books/comments")
+    
     id_books = get_book_ids(9, 9, 1)
     for id_book in id_books:
         try:
