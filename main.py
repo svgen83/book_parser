@@ -40,7 +40,7 @@ def get_response(book_id):
     return response
     
 
-def parsing_book_page(book_id):
+def parse_book_page(book_id):
     url = f"https://tululu.org/b{book_id}/"
     response = get_response(book_id)
     check_for_redirect(response)
@@ -53,19 +53,11 @@ def parsing_book_page(book_id):
                                    class_="bookimage").find("img")["src"]
     image_link = urljoin(url,
                          relativ_image_link)
-    comments_tags = soup.find_all("div",
-                                  class_="texts")
-    comments = []
-    
-    for comments_tag in comments_tags:
-        comment = comments_tag.find("span", class_="black").text
-        comments.append(comment)
+    comments_tags = soup.find_all("div", class_="texts")
+    comments = [comments_tag.find("span", class_="black").text for comments_tag in comments_tags]
+   
     genres_tags = soup.find("span", class_="d_book").find_all("a")
-    genres = []
-    
-    for tag in genres_tags:
-        genre = tag.text
-        genres.append(genre)
+    genres = [tag.text for tag in genres_tags]
     return {"book_title": sanitize_filename(book_title.strip()),
             "image_link": image_link,
             "author": author.strip(),
@@ -96,7 +88,7 @@ def main():
                                     book_id)
             
             book_url = "https://tululu.org/"
-            parsed_page = parsing_book_page(book_id)
+            parsed_page = parse_book_page(book_id)
 
             download_files(book_url,
                            book_dir,
