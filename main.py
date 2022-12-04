@@ -3,6 +3,7 @@ import os
 import pathlib
 import random
 import requests
+import time
 
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
@@ -19,9 +20,8 @@ def get_book_ids():
     Программа для парсинга библиотеки и скачивания книг""")
     parser.add_argument("start_id", type=int, help="id первой книги")
     parser.add_argument("fin_id", type=int, help="id последней книги")
-    parser.add_argument("id_range", type=int, help="общее число книг")
     args = parser.parse_args()
-    return [str(random.randint(args.start_id, args.fin_id)) for i in range(args.id_range)]
+    return [str(book_id) for book_id in range(args.start_id, args.fin_id)]
 
 
 def download_files(book_url, directory, id_book, book_name, ext):
@@ -118,6 +118,9 @@ def main():
             
         except requests.exceptions.HTTPError:
             print("Необходимый файл отсутствует")
+        continue
+                except requests.exceptions.ConnectionError:
+            time.sleep(1)
         continue
 
 
