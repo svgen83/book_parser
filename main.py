@@ -24,18 +24,25 @@ def get_book_ids():
     return [str(book_id) for book_id in range(args.start_id, args.fin_id)]
 
 
-def download_files(book_url, directory, id_book, book_name, ext):
-    response = requests.get(book_url)
+def download_files(book_url, directory, book_id, book_name, ext):
+    params = {"": "txt.php", "id": book_id}
+    response = requests.get(book_url, params = params)
     response.raise_for_status()
     check_for_redirect(response)
     pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
-    save_file(response.content,"wb", directory, id_book, book_name, ext)
+    save_file(response.content,"wb", directory, book_id, book_name, ext)
+    
 
-
-def parsing_book_page(book_id):
+def get_response(book_id):
     url = f"https://tululu.org/b{book_id}/"
     response = requests.get(url)
     response.raise_for_status()
+    return response
+    
+
+def parsing_book_page(book_id):
+    url = f"https://tululu.org/b{book_id}/"
+    response = get_response(book_id)
     check_for_redirect(response)
     
     soup = BeautifulSoup(response.text,
@@ -88,7 +95,7 @@ def main():
             book_dir = os.path.join(base_directory,
                                     book_id)
             
-            book_url = f"https://tululu.org/txt.php?id={book_id}"
+            book_url = "https://tululu.org/"
             parsed_page = parsing_book_page(book_id)
 
             download_files(book_url,
@@ -118,8 +125,7 @@ def main():
             
         except requests.exceptions.HTTPError:
             print("Необходимый файл отсутствует")
-        continue
-                except requests.exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError:
             time.sleep(1)
         continue
 
