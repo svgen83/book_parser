@@ -16,10 +16,10 @@ pip install -r requirements.txt
 The program is launched from the command line. To run the program with the `cd` command, you first need to navigate to the folder containing the `main.py` file.
 After that, on the command line, write:
 ```
-python main.py 10, 20, 5
+python main.py 10, 20
 ```
-In this case, the numbers `10, 20, 5` can be any other integers. They indicate, respectively, the first and last position of downloaded books, as well as the total number of books.
-It should be noted that books, if any, will be downloaded randomly. It must be remembered that the second number must be greater than the first, and the latter must not exceed their difference :).
+In this case, the numbers `10, 20` can be any other integers. They indicate, respectively, the first and last position (id) of downloaded books.
+It must be remembered that the second number must be greater than the first.
 
 ## Project Goals
 
