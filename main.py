@@ -18,9 +18,9 @@ def get_book_ids():
     parser = argparse.ArgumentParser(description="""
     Программа для парсинга библиотеки и скачивания книг""")
     parser.add_argument("start_id", type=int, help="id первой книги")
-    parser.add_argument("fin_id + 1", type=int, help="id последней книги")
+    parser.add_argument("fin_id", type=int, help="id последней книги")
     args = parser.parse_args()
-    return [str(book_id) for book_id in range(args.start_id, args.fin_id)]
+    return [str(book_id) for book_id in range(args.start_id, args.fin_id + 1)]
 
 
 def download_file(book_url, directory, book_id, book_name, ext):
@@ -36,22 +36,20 @@ def get_response(book_id):
     url = f"https://tululu.org/b{book_id}/"
     response = requests.get(url)
     response.raise_for_status()
+    check_for_redirect(response)
     return response
 
 
-def parse_book_page(book_id):
-    url = f"https://tululu.org/b{book_id}/"
-    response = get_response(book_id)
-    check_for_redirect(response)
-
+def parse_book_page(response):
     soup = BeautifulSoup(response.text,
                          "lxml")
     title = soup.find("h1").text
     book_title, author = title.split("::")
     relativ_image_link = soup.find("div",
                                    class_="bookimage").find("img")["src"]
-    image_link = urljoin(url,
+    image_link = urljoin(response.url,
                          relativ_image_link)
+
     comments_tags = soup.find_all("div", class_="texts")
     comments = [comments_tag.find("span", class_="black").text
                 for comments_tag in comments_tags]
@@ -88,7 +86,8 @@ def main():
                                      book_id)
 
             book_url = "https://tululu.org/"
-            parsed_page = parse_book_page(book_id)
+            response = get_response(book_id)
+            parsed_page = parse_book_page(response)
 
             download_file(book_url,
                           book_path,
