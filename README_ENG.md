@@ -18,7 +18,7 @@ After that, on the command line, write:
 ```
 python main.py 10, 20
 ```
-In this case, the numbers `10, 20` can be any other integers. They indicate, respectively, the first and last position (id) of downloaded books.
+In this case, the numbers `10, 20` can be any other positive integers. They indicate, respectively, the first and last position (id) of downloaded books.
 It must be remembered that the second number must be greater than the first.
 
 ## Project Goals
