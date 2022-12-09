@@ -29,7 +29,11 @@ def download_file(book_url, directory, book_id, book_name, ext):
     response.raise_for_status()
     check_for_redirect(response)
     pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
-    save_file(response.content, "wb", directory, book_id, book_name, ext)
+    filepath = os.path.join(directory,
+                            f"{book_id}_{book_name}.{ext}")
+    with open(filepath,
+              "wb") as file:
+        file.write(response.content)
 
 
 def get_response(book_id):
@@ -69,9 +73,9 @@ def save_file(download_content,
               id_book,
               book_name,
               ext):
-    file_name = os.path.join(directory,
-                             f"{id_book}_{book_name}.{ext}")
-    with open(file_name,
+    filepath = os.path.join(directory,
+                            f"{id_book}_{book_name}.{ext}")
+    with open(filepath,
               file_mode) as file:
         file.write(download_content)
 
@@ -100,19 +104,17 @@ def main():
                           parsed_page["book_title"],
                           ext="jpg")
 
-            save_file(parsed_page["comments"],
-                      "wt",
-                      book_path,
-                      book_id,
-                      "Комментарии",
-                      ext="txt")
+            comments_path = os.path.join(book_path,
+                                         f"{book_id}_комментарии.txt")
+            with open(comments_path,
+                      "wt") as file:
+                file.write(parsed_page["comments"])
 
-            save_file(parsed_page["genres"],
-                      "wt",
-                      book_path,
-                      book_id,
-                      "Жанр",
-                      ext="txt")
+            genre_path = os.path.join(book_path,
+                                      f"{book_id}_Жанр.txt")
+            with open(genre_path,
+                      "wt") as file:
+                file.write(parsed_page["genres"])
 
         except requests.exceptions.HTTPError:
             print("Необходимый файл отсутствует")
