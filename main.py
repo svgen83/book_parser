@@ -20,7 +20,7 @@ def get_book_ids():
     parser.add_argument("start_id", type=int, help="id первой книги")
     parser.add_argument("fin_id", type=int, help="id последней книги")
     args = parser.parse_args()
-    return [str(book_id) for book_id in range(args.start_id, args.fin_id + 1)]
+    return (str(book_id) for book_id in range(args.start_id, args.fin_id + 1))
 
 
 def download_file(book_url, directory, book_id, book_name, ext):
@@ -81,10 +81,9 @@ def save_file(download_content,
 
 
 def main():
-    book_ids = get_book_ids()
     base_path = "./books"
 
-    for book_id in book_ids:
+    for book_id in get_book_ids():
         try:
             book_path = os.path.join(base_path,
                                      book_id)
