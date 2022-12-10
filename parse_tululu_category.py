@@ -59,9 +59,10 @@ def parse_book_page(response):
             
 
 def main():
-    page_numbers = 10
+    page_numbers = 4
     responses = []
-    for page_number in range(page_numbers):  
+    books_info = []
+    for page_number in range(page_numbers+1):
         try:
             page_url = f"https://tululu.org/l55/{str(page_number)}"
             response = get_response(page_url)
@@ -76,13 +77,14 @@ def main():
     for book_url in book_urls:
         try:
             resp = get_response(book_url)
-            book_info = [parse_book_page(resp)]
+            book_info = parse_book_page(resp)
+            books_info.append(book_info)
         except requests.exceptions.HTTPError:
             print("Необходимый файл отсутствует")
         except requests.exceptions.ConnectionError:
             time.sleep(1)
         continue
-    print (book_info)
+    print (books_info)
             
     
 
