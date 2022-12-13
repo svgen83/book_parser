@@ -47,13 +47,17 @@ def parse_book_page(response):
     relativ_image_link = soup.find("div",
                                    class_="bookimage").find("img")["src"]
     
-    links = soup.find("body").find(class_="d_book").find_all('a')
+    links = soup.find("body").find(class_="d_book").find_all("a")
+
     for link in links:
         if link.text == "скачать txt":
-            relativ_txt_link = link['href']
+            relativ_txt_link = link.get('href')
+            break
+        else:relativ_txt_link = ''
 
     txt_link = urljoin(response.url,
                        relativ_txt_link)
+   
     
     image_link = urljoin(response.url,
                          relativ_image_link)
@@ -72,15 +76,14 @@ def parse_book_page(response):
             "genres": "\n".join(genres)}
 
 
-def download_file(file_url, directory, book_id, book_name, ext):    
+def download_file(file_url, directory, book_id, book_name, ext):
     response = requests.get(file_url)
     response.raise_for_status()
     check_for_redirect(response)
     pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
     filepath = os.path.join(directory,
                             f"{book_id}_{book_name}.{ext}")
-    with open(filepath,
-              "wb") as file:
+    with open(filepath, "wb") as file:
         file.write(response.content)
             
 
