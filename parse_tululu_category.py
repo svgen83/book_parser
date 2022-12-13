@@ -40,33 +40,34 @@ def get_book_urls(responses):
     
 
 def parse_book_page(response):
+
+    
+        
     soup = BeautifulSoup(response.text,
                          "lxml")
     title = soup.find("h1").text
     book_title, author = title.split("::")
-    relativ_image_link = soup.find("div",
-                                   class_="bookimage").find("img")["src"]
-    
-    links = soup.find("body").find(class_="d_book").find_all("a")
 
-    for link in links:
-        if link.text == "скачать txt":
-            relativ_txt_link = link.get('href')
-            break
-        else:relativ_txt_link = ''
+    relativ_image_link = soup.select_one(".bookimage img").get("src")
+    
+    if soup.select_one("[href^='/txt.php']"):
+        relativ_txt_link = soup.select_one(
+            "[href^='/txt.php']").get("href")
+    else: relativ_txt_link = ''
+    
 
     txt_link = urljoin(response.url,
                        relativ_txt_link)
    
-    
     image_link = urljoin(response.url,
                          relativ_image_link)
 
-    comments_tags = soup.find_all("div", class_="texts")
-    comments = [comments_tag.find("span", class_="black").text
+    comments_tags = soup.select(".texts")
+    comments = [comments_tag.select_one("span.black").text
                 for comments_tag in comments_tags]
-
-    genres_tags = soup.find("span", class_="d_book").find_all("a")
+    
+    
+    genres_tags = soup.select("span.d_book a")
     genres = [tag.text for tag in genres_tags]
     return {"txt_url": txt_link,
             "book_title": sanitize_filename(book_title.strip()),
@@ -88,7 +89,7 @@ def download_file(file_url, directory, book_id, book_name, ext):
             
 
 def main():
-    page_numbers = 4
+    page_numbers = 1
     responses = []
     books_description = []
     for page_number in range(1, page_numbers+1):
@@ -130,10 +131,10 @@ def main():
         except requests.exceptions.ConnectionError:
             time.sleep(1)
         continue
-##    books_description_json = json.dumps(books_description,
-##                                   ensure_ascii=False).encode('utf8')
-##    with open("./books_description.json", "wb") as file:
-##        file.write(books_description_json)
+    books_description_json = json.dumps(books_description,
+                                   ensure_ascii=False).encode('utf8')
+    with open("./books_description.json", "wb") as file:
+        file.write(books_description_json)
 
 
 if __name__ == "__main__":
