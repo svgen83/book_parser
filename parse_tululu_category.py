@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import os
 import pathlib
 import requests
@@ -13,9 +14,24 @@ from urllib.parse import urljoin, urlparse
 from pprint import pprint
 
 
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(level=logging.INFO)
+
+
 def check_for_redirect(response):
     if response.url == "https://tululu.org/":
         raise requests.exceptions.HTTPError
+
+
+def get_page_number():
+    parser = argparse.ArgumentParser(description="""
+    Программа для парсинга библиотеки и скачивания книг""")
+    parser.add_argument("start_page", type=int, help="id первой книги")
+    parser.add_argument("fin_page", type=int, help="id последней книги")
+    args = parser.parse_args()
+    return (page_number for page_number in range(args.start_page, args.fin_page + 1))
+
 
 def get_response(url):
     response = requests.get(url)
@@ -40,22 +56,18 @@ def get_book_urls(responses):
     
 
 def parse_book_page(response):
-
-    
         
     soup = BeautifulSoup(response.text,
                          "lxml")
     title = soup.find("h1").text
     book_title, author = title.split("::")
-
     relativ_image_link = soup.select_one(".bookimage img").get("src")
     
     if soup.select_one("[href^='/txt.php']"):
         relativ_txt_link = soup.select_one(
             "[href^='/txt.php']").get("href")
-    else: relativ_txt_link = ''
+    else: relativ_txt_link = '/ '
     
-
     txt_link = urljoin(response.url,
                        relativ_txt_link)
    
@@ -89,16 +101,16 @@ def download_file(file_url, directory, book_id, book_name, ext):
             
 
 def main():
-    page_numbers = 1
+    
     responses = []
     books_description = []
-    for page_number in range(1, page_numbers+1):
+    for page_number in get_page_number():
         try:
             page_url = f"https://tululu.org/l55/{str(page_number)}"
             response = get_response(page_url)
             responses.append(response)
         except requests.exceptions.HTTPError:
-            print("Необходимый файл отсутствует")
+            logger.info("Необходимый файл отсутствует")
         except requests.exceptions.ConnectionError:
             time.sleep(1)
         continue    
@@ -127,7 +139,7 @@ def main():
             
             books_description.append(book_description)
         except requests.exceptions.HTTPError:
-            print("Необходимый файл отсутствует")
+            logger.info("Необходимый файл отсутствует")
         except requests.exceptions.ConnectionError:
             time.sleep(1)
         continue
