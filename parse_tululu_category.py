@@ -4,14 +4,11 @@ import logging
 import os
 import pathlib
 import requests
-import re
 import time
 
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlparse
-
-from pprint import pprint
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 def check_for_redirect(response):
     if response.url == "https://tululu.org/":
         raise requests.exceptions.HTTPError
-    
+
 
 def parse_cmd():
     parser = argparse.ArgumentParser(description="""
@@ -36,13 +33,13 @@ def parse_cmd():
     parser.add_argument(
         "-f",
         dest="fin_page",
-        default=1,
+        default=4,
         type=int,
         help="номер страницы, которым будет завершаться скачивание")
-    
+
     parser.add_argument(
         "-df", dest="dest_folder",
-        type=str,default=".",
+        type=str, default=".",
         help="путь к каталогам с результатами парсинга")
 
     parser.add_argument(
@@ -56,10 +53,10 @@ def parse_cmd():
         help="не скачивать книги")
 
     parser.add_argument(
-        "-j",dest="json_path",
+        "-j", dest="json_path",
         type=str, default="./books_description.json",
         help="путь к файлу с описанием книг")
-    
+
     return parser.parse_args()
 
 
@@ -78,39 +75,39 @@ def get_book_urls(responses):
         parsed_objs = soup.select("#content .bookimage [href]")
 
         id_urls = [urljoin(response.url,
-                            parsed_obj.get("href")
+                           parsed_obj.get("href")
                            ) for parsed_obj in parsed_objs]
         all_urls.extend(id_urls)
-        pprint(id_urls)
     return all_urls
-    
+
 
 def parse_book_page(response):
-        
+
     soup = BeautifulSoup(response.text,
                          "lxml")
     title = soup.find("h1").text
     book_title, author = title.split("::")
     relativ_image_link = soup.select_one(".bookimage img").get("src")
-    
+
     if soup.select_one("[href^='/txt.php']"):
         relativ_txt_link = soup.select_one(
             "[href^='/txt.php']").get("href")
-    else: relativ_txt_link = '/ '
-    
+    else:
+        relativ_txt_link = "/ "
+
     txt_link = urljoin(response.url,
                        relativ_txt_link)
-   
+
     image_link = urljoin(response.url,
                          relativ_image_link)
 
     comments_tags = soup.select(".texts")
     comments = [comments_tag.select_one("span.black").text
                 for comments_tag in comments_tags]
-    
-    
+
     genres_tags = soup.select("span.d_book a")
     genres = [tag.text for tag in genres_tags]
+
     return {"txt_url": txt_link,
             "book_title": sanitize_filename(book_title.strip()),
             "image_link": image_link,
@@ -130,13 +127,13 @@ def download_file(file_url, directory, subdirectory,
                             f"{book_id}_{book_name}.{ext}")
     with open(filepath, "wb") as file:
         file.write(response.content)
-            
+
 
 def main():
     args = parse_cmd()
     responses = []
     books_description = []
-    for page_number  in range(args.start_page, args.fin_page + 1):
+    for page_number in range(args.start_page, args.fin_page + 1):
         try:
             page_url = f"https://tululu.org/l55/{str(page_number)}"
             response = get_response(page_url)
@@ -145,17 +142,15 @@ def main():
             logger.info("Необходимый файл отсутствует")
         except requests.exceptions.ConnectionError:
             time.sleep(1)
-        continue    
-    book_urls = get_book_urls(responses)
-
-    for book_url in book_urls:
+        continue
+    for book_url in get_book_urls(responses):
         try:
             resp = get_response(book_url)
             book_description = parse_book_page(resp)
-            
+
             parsed_book_url = urlparse(book_url)
             book_url_path = parsed_book_url.path
-            book_id = book_url_path.replace('/','').replace('b','')
+            book_id = book_url_path.replace('/', '').replace('b', '')
 
             if args.skip_txt:
                 download_file(book_description["txt_url"],
@@ -163,7 +158,7 @@ def main():
                               "books",
                               book_id,
                               book_description["book_title"],
-                              ext = "txt")
+                              ext="txt")
 
             if args.skip_imgs:
                 download_file(book_description["image_link"],
@@ -171,8 +166,8 @@ def main():
                               "images",
                               book_id,
                               book_description["book_title"],
-                              ext = "jpg")
-            
+                              ext="jpg")
+
             books_description.append(book_description)
         except requests.exceptions.HTTPError:
             logger.info("Необходимый файл отсутствует")
@@ -180,7 +175,7 @@ def main():
             time.sleep(1)
         continue
     books_description_json = json.dumps(books_description,
-                                   ensure_ascii=False).encode('utf8')
+                                        ensure_ascii=False).encode('utf8')
     with open(args.json_path, "wb") as file:
         file.write(books_description_json)
 
