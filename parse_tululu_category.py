@@ -28,16 +28,20 @@ def parse_cmd():
     parser = argparse.ArgumentParser(description="""
     Программа для парсинга библиотеки и скачивания книг""")
     parser.add_argument(
+        "-s",
         dest="start_page",
+        default=1,
         type=int,
         help="номер страницы, с которой будет начиаться скачивание")
     parser.add_argument(
+        "-f",
         dest="fin_page",
+        default=1,
         type=int,
         help="номер страницы, которым будет завершаться скачивание")
     
     parser.add_argument(
-        "-f", dest="dest_folder",
+        "-df", dest="dest_folder",
         type=str,default=".",
         help="путь к каталогам с результатами парсинга")
 
@@ -71,12 +75,13 @@ def get_book_urls(responses):
     for response in responses:
         soup = BeautifulSoup(response.text,
                              "lxml")
-        parsed_objs = soup.find("body").find("div",
-                                             id = "content").find_all("table")
+        parsed_objs = soup.select("#content .bookimage [href]")
+
         id_urls = [urljoin(response.url,
-                            parsed_obj.find("a")["href"]
+                            parsed_obj.get("href")
                            ) for parsed_obj in parsed_objs]
         all_urls.extend(id_urls)
+        pprint(id_urls)
     return all_urls
     
 
