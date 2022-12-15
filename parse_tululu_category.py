@@ -13,8 +13,6 @@ from urllib.parse import urljoin, urlparse
 
 logger = logging.getLogger(__name__)
 
-logging.basicConfig(level=logging.INFO)
-
 
 def check_for_redirect(response):
     if response.url == "https://tululu.org/":
@@ -82,6 +80,7 @@ def get_book_urls(responses):
 
 
 def parse_book_page(response):
+    logging.basicConfig(level=logging.INFO)
 
     soup = BeautifulSoup(response.text,
                          "lxml")
@@ -135,7 +134,7 @@ def main():
     books_description = []
     for page_number in range(args.start_page, args.fin_page + 1):
         try:
-            page_url = f"https://tululu.org/l55/{str(page_number)}"
+            page_url = f"https://tululu.org/l55/{page_number}"
             response = get_response(page_url)
             responses.append(response)
         except requests.exceptions.HTTPError:
