@@ -27,7 +27,7 @@ def parse_cmd():
         dest="start_page",
         default=1,
         type=int,
-        help="номер страницы, с которой будет начиаться скачивание")
+        help="номер страницы, с которой будет начинаться скачивание")
     parser.add_argument(
         "-f",
         dest="fin_page",
@@ -80,8 +80,6 @@ def get_book_urls(responses):
 
 
 def parse_book_page(response):
-    logging.basicConfig(level=logging.INFO)
-
     soup = BeautifulSoup(response.text,
                          "lxml")
     title = soup.find("h1").text
@@ -129,9 +127,11 @@ def download_file(file_url, directory, subdirectory,
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     args = parse_cmd()
     responses = []
     books_description = []
+    
     for page_number in range(args.start_page, args.fin_page + 1):
         try:
             page_url = f"https://tululu.org/l55/{page_number}"
@@ -140,6 +140,7 @@ def main():
         except requests.exceptions.HTTPError:
             logger.info("Необходимый файл отсутствует")
         except requests.exceptions.ConnectionError:
+            logger.warning("Интернет-соединение отсутствует")
             time.sleep(1)
         continue
     for book_url in get_book_urls(responses):
@@ -171,12 +172,14 @@ def main():
         except requests.exceptions.HTTPError:
             logger.info("Необходимый файл отсутствует")
         except requests.exceptions.ConnectionError:
+            logger.warning("Интернет-соединение отсутствует")
             time.sleep(1)
         continue
-    books_description_json = json.dumps(books_description,
-                                        ensure_ascii=False).encode('utf8')
+
     with open(args.json_path, "wb") as file:
-        file.write(books_description_json)
+        file.write(json.dumps(
+            books_description,
+            ensure_ascii=False).encode('utf8'))
 
 
 if __name__ == "__main__":
