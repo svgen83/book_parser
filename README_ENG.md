@@ -24,11 +24,13 @@ By default, the first and last pages of books are set to `1` and `4`.
 
 ## Additional settings
 If the user does not consider it necessary to download book covers or text files with books, then additional flags should be added on the command line:
-`-si` or `--skip_image` to skip downloading cover images;
-`-st` or `--skip_text` to skip downloading files with book text.
++ `-si` or `--skip_image` to skip downloading cover images;
++ `-st` or `--skip_text` to skip downloading files with book text.
+
 Files with text and images are downloaded respectively to the "books" and "images" folders, which are created by default in the directory with the program. The file with the description of the downloaded books in the .json format will also be located by default in the directory with the program.
-The general folder download location can be changed by "books" and "images" by specifying the path using the `-df` option.
-Similarly, you can change the location of the book description file by specifying the path using the `-j` parameter.
+Settings allow:
++ change the shared download location of the "books" and "images" folders to a path using the -df option.
++ change the location of the book description file by specifying the path using the -j option.
 
 
 ## Project Goals
