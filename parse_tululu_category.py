@@ -147,9 +147,9 @@ def main():
 
             parsed_book_url = urlparse(book_url)
             book_url_path = parsed_book_url.path
-            book_id = book_url_path.replace('/', '').replace('b', '')
+            book_id = book_url_path.replace("/", "").replace("b", "")
 
-            if args.skip_txt is False:
+            if not args.skip_txt:
                 download_file(book_description["txt_url"],
                               args.dest_folder,
                               "books",
@@ -157,7 +157,7 @@ def main():
                               book_description["book_title"],
                               ext="txt")
 
-            if args.skip_imgs is False:
+            if not args.skip_imgs:
                 download_file(book_description["image_link"],
                               args.dest_folder,
                               "images",
@@ -173,10 +173,9 @@ def main():
             time.sleep(1)
         continue
 
-    with open(args.json_path, "wb") as file:
-        file.write(json.dumps(
-            books_description,
-            ensure_ascii=False).encode('utf8'))
+    with open(args.json_path, "w") as fp:
+        json.dump(books_description, fp,
+                  ensure_ascii=False)
 
 
 if __name__ == "__main__":
