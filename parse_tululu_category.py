@@ -65,18 +65,14 @@ def get_response(url):
     return response
 
 
-def get_book_urls(responses):
-    all_urls = []
-    for response in responses:
-        soup = BeautifulSoup(response.text,
-                             "lxml")
-        parsed_objs = soup.select("#content .bookimage [href]")
+def get_book_urls(response):
+    soup = BeautifulSoup(response.text,
+                         "lxml")
+    parsed_objs = soup.select("#content .bookimage [href]")
 
-        id_urls = [urljoin(response.url,
-                           parsed_obj.get("href")
-                           ) for parsed_obj in parsed_objs]
-        all_urls.extend(id_urls)
-    return all_urls
+    return (urljoin(response.url,
+                    parsed_obj.get("href")
+                    ) for parsed_obj in parsed_objs)
 
 
 def parse_book_page(response):
@@ -129,21 +125,22 @@ def download_file(file_url, directory, subdirectory,
 def main():
     logging.basicConfig(level=logging.INFO)
     args = parse_cmd()
-    responses = []
+    all_book_urls = []
     books_description = []
-    
+
     for page_number in range(args.start_page, args.fin_page + 1):
         try:
             page_url = f"https://tululu.org/l55/{page_number}"
             response = get_response(page_url)
-            responses.append(response)
+            book_urls = get_book_urls(response)
+            all_book_urls.extend(book_urls)
         except requests.exceptions.HTTPError:
             logger.info("Необходимый файл отсутствует")
         except requests.exceptions.ConnectionError:
             logger.warning("Интернет-соединение отсутствует")
             time.sleep(1)
         continue
-    for book_url in get_book_urls(responses):
+    for book_url in all_book_urls:
         try:
             resp = get_response(book_url)
             book_description = parse_book_page(resp)
@@ -152,7 +149,7 @@ def main():
             book_url_path = parsed_book_url.path
             book_id = book_url_path.replace('/', '').replace('b', '')
 
-            if args.skip_txt == False:
+            if args.skip_txt is False:
                 download_file(book_description["txt_url"],
                               args.dest_folder,
                               "books",
@@ -160,7 +157,7 @@ def main():
                               book_description["book_title"],
                               ext="txt")
 
-            if args.skip_imgs == False:
+            if args.skip_imgs is False:
                 download_file(book_description["image_link"],
                               args.dest_folder,
                               "images",
