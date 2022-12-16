@@ -42,12 +42,12 @@ def parse_cmd():
 
     parser.add_argument(
         "-si", "--skip_imgs",
-        action='store_false',
+        action="store_true",
         help="не скачивать картинки")
 
     parser.add_argument(
         "-st", "--skip_txt",
-        action='store_false',
+        action="store_true",
         help="не скачивать книги")
 
     parser.add_argument(
@@ -152,7 +152,7 @@ def main():
             book_url_path = parsed_book_url.path
             book_id = book_url_path.replace('/', '').replace('b', '')
 
-            if args.skip_txt:
+            if args.skip_txt == False:
                 download_file(book_description["txt_url"],
                               args.dest_folder,
                               "books",
@@ -160,7 +160,7 @@ def main():
                               book_description["book_title"],
                               ext="txt")
 
-            if args.skip_imgs:
+            if args.skip_imgs == False:
                 download_file(book_description["image_link"],
                               args.dest_folder,
                               "images",
