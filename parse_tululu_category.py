@@ -109,17 +109,20 @@ def parse_book_page(response):
             "genres": "\n".join(genres)}
 
 
-def download_file(file_url, directory, subdirectory,
-                  book_id, book_name, ext):
+def download_file(file_url, filepath):
     response = requests.get(file_url)
     response.raise_for_status()
     check_for_redirect(response)
-    dir_path = os.path.join(directory, subdirectory)
-    pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
-    filepath = os.path.join(dir_path,
-                            f"{book_id}_{book_name}.{ext}")
     with open(filepath, "wb") as file:
         file.write(response.content)
+
+
+def get_filepath(directory, subdirectory,
+                 book_id, book_name, ext):
+    dir_path = os.path.join(directory, subdirectory)
+    pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
+    return os.path.join(dir_path,
+                        f"{book_id}_{book_name}.{ext}")
 
 
 def main():
@@ -148,22 +151,24 @@ def main():
             parsed_book_url = urlparse(book_url)
             book_url_path = parsed_book_url.path
             book_id = book_url_path.replace("/", "").replace("b", "")
+            image_path = get_filepath(args.dest_folder,
+                                      "images", book_id,
+                                      book_description["book_title"],
+                                      ext="jpg")
+            text_path = get_filepath(args.dest_folder,
+                                     "books", book_id,
+                                     book_description["book_title"],
+                                     ext="txt")
+            book_description.update({"image_path": image_path,
+                                     "text_path": text_path})
 
             if not args.skip_txt:
                 download_file(book_description["txt_url"],
-                              args.dest_folder,
-                              "books",
-                              book_id,
-                              book_description["book_title"],
-                              ext="txt")
+                              text_path)
 
             if not args.skip_imgs:
                 download_file(book_description["image_link"],
-                              args.dest_folder,
-                              "images",
-                              book_id,
-                              book_description["book_title"],
-                              ext="jpg")
+                              image_path)
 
             books_description.append(book_description)
         except requests.exceptions.HTTPError:
