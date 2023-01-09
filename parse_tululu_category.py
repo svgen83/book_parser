@@ -179,8 +179,7 @@ def main():
         continue
 
     with open(args.json_path, "w") as fp:
-        json.dump(books_description, fp,
-                  ensure_ascii=False)
+        json.dump(books_description, fp)
 
 
 if __name__ == "__main__":
